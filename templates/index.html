@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concours de Gyroscope</title>
+    <title>Concours de vitesse de rotation du gyroscope</title>
     <style>
         body {
             background-color: #121212;
@@ -45,6 +45,21 @@
             margin-top: 10px;
             width: 60%;
         }
+        .explanation {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #ccc;
+            padding: 10px;
+        }
+        .images {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .images img {
+            width: 45%;
+            border: 2px solid #34ebc0;
+        }
     </style>
 </head>
 <body>
@@ -55,6 +70,25 @@
         <button onclick="switchCamera()">Changer de caméra</button>
     </div>
     <p id="message"></p>
+
+    <!-- Explication pour les visiteurs -->
+    <div class="explanation">
+        <p>Bienvenue dans le concours de vitesse de rotation du gyroscope ! 🌀</p>
+        <p>Le but du jeu est de mesurer la vitesse de rotation d'un gyroscope et de vous classer parmi les meilleurs. Vous pouvez utiliser votre appareil pour enregistrer la vitesse de rotation et voir comment vous vous situez par rapport aux autres participants.</p>
+        <p>Pour commencer, cliquez sur le bouton "Démarrer l'enregistrement" et tournez votre appareil aussi vite que possible !</p>
+    </div>
+
+    <!-- Affichage des images de gyroscopes -->
+    <div class="images">
+        <div>
+            <h3>Gyroscope de base</h3>
+            <img src="https://c.top4top.io/p_32828m6w80.jpg" alt="Gyroscope de base">
+        </div>
+        <div>
+            <h3>Gyroscope de compétition</h3>
+            <img src="https://d.top4top.io/p_32827d3r61.jpg" alt="Gyroscope de compétition">
+        </div>
+    </div>
 
     <!-- Tableau des meilleurs scores -->
     <h2>Classement des vitesses de rotation</h2>
@@ -92,6 +126,9 @@
                         document.getElementById('message').innerText = "Accès au gyroscope refusé.";
                         return;
                     }
+                } else {
+                    // Si le navigateur ne nécessite pas une demande explicite de permission, continuez
+                    console.log("Accès au gyroscope autorisé sans demande explicite.");
                 }
 
                 // Démarrage du flux vidéo
