@@ -116,6 +116,20 @@
         let currentFacingMode = "environment"; // Par défaut : caméra arrière
         let scores = []; // Liste pour stocker les scores
 
+        // Charger les scores depuis le localStorage
+        function loadScores() {
+            const savedScores = localStorage.getItem('scores');
+            if (savedScores) {
+                scores = JSON.parse(savedScores); // Convertir la chaîne JSON en objet
+                updateLeaderboard(); // Mettre à jour le tableau avec les scores sauvegardés
+            }
+        }
+
+        // Sauvegarder les scores dans le localStorage
+        function saveScores() {
+            localStorage.setItem('scores', JSON.stringify(scores)); // Convertir l'objet en chaîne JSON et sauvegarder
+        }
+
         async function startRecording() {
             try {
                 // Vérification des permissions gyroscope (iOS)
@@ -196,6 +210,9 @@
                 scores = scores.slice(0, 10);
             }
 
+            // Sauvegarder les scores dans le localStorage
+            saveScores();
+
             // Mettre à jour le tableau des scores
             updateLeaderboard();
         }
@@ -214,6 +231,9 @@
                 tableBody.appendChild(row);
             });
         }
+
+        // Charger les scores au démarrage de la page
+        loadScores();
     </script>
 </body>
 </html>
