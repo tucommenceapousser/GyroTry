@@ -25,55 +25,25 @@
             border: none;
             cursor: pointer;
         }
-        h1, h2 {
-            color: #00ff00;
+        table {
+            margin-top: 20px;
+            width: 80%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 2px solid #34ebc0;
+        }
+        th, td {
+            padding: 10px;
             text-align: center;
         }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            background-color: #333;
-            margin: 5px;
-            padding: 10px;
-            border-radius: 5px;
-            color: #00e6e6;
-        }
-        a {
-            text-decoration: none;
-            color: #00ff00;
-        }
-        form {
-            text-align: center;
-            margin: 20px 0;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            border: none;
+        th {
+            background-color: #34ebc0;
         }
         input {
-            width: 300px;
-        }
-        button {
-            background-color: #00ff00;
-            color: #000;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #00cc00;
-        }
-        
-        .image-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
+            padding: 10px;
+            margin-top: 10px;
+            width: 60%;
         }
     </style>
 </head>
@@ -86,9 +56,31 @@
     </div>
     <p id="message"></p>
 
+    <!-- Tableau des meilleurs scores -->
+    <h2>Classement des vitesses de rotation</h2>
+    <table id="leaderboard">
+        <thead>
+            <tr>
+                <th>Rang</th>
+                <th>Nom</th>
+                <th>Vitesse (°/s)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les données des scores seront ajoutées ici dynamiquement -->
+        </tbody>
+    </table>
+
+    <!-- Formulaire pour soumettre le nom -->
+    <div>
+        <input type="text" id="username" placeholder="Entrez votre nom">
+        <button onclick="submitScore()">Soumettre mon score</button>
+    </div>
+
     <script>
         let videoStream = null;
         let currentFacingMode = "environment"; // Par défaut : caméra arrière
+        let scores = []; // Liste pour stocker les scores
 
         async function startRecording() {
             try {
@@ -145,6 +137,45 @@
             // Bascule entre caméra avant ("user") et arrière ("environment")
             currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
             getCameraStream();
+        }
+
+        function submitScore() {
+            const username = document.getElementById('username').value;
+            const speed = Math.random() * 1000; // Remplacez cette ligne par votre calcul de vitesse réel
+
+            if (!username) {
+                alert("Veuillez entrer votre nom.");
+                return;
+            }
+
+            // Ajouter le score dans le tableau
+            scores.push({ username, speed });
+
+            // Trier les scores par vitesse décroissante
+            scores.sort((a, b) => b.speed - a.speed);
+
+            // Limiter à 10 meilleurs scores
+            if (scores.length > 10) {
+                scores = scores.slice(0, 10);
+            }
+
+            // Mettre à jour le tableau des scores
+            updateLeaderboard();
+        }
+
+        function updateLeaderboard() {
+            const tableBody = document.getElementById('leaderboard').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // Réinitialiser le tableau
+
+            scores.forEach((score, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${score.username}</td>
+                    <td>${score.speed.toFixed(2)} °/s</td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
     </script>
 </body>
