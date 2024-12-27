@@ -3,15 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>trhacknon - Mes Projets</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Concours de Gyroscope</title>
     <style>
         body {
-            background-color: #1a1a1a;
+            background-color: #121212;
             color: #fff;
+            text-align: center;
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+        }
+        video {
+            width: 80%;
+            margin-top: 20px;
+            border: 2px solid #34ebc0;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            margin-right: 10px;
+            font-size: 16px;
+            background-color: #34ebc0;
+            border: none;
+            cursor: pointer;
         }
         h1, h2 {
             color: #00ff00;
@@ -66,40 +78,74 @@
     </style>
 </head>
 <body>
-    <h1>trhacknon - Mes Projets</h1>
-       <div class="image-container">
-        <img src="https://e.top4top.io/p_3280ljc1c0.png" alt="Image centrée">
+    <h1>Concours de vitesse de rotation du gyroscope</h1>
+    <video id="video" autoplay></video>
+    <div>
+        <button onclick="startRecording()">Démarrer l'enregistrement</button>
+        <button onclick="switchCamera()">Changer de caméra</button>
     </div>
-    <h2>Liste des Projets</h2>
-    <ul>
-        {% for project in projects %}
-        <li>
-            <a href="{{ url_for('project_details', project_name=project) }}">{{ project }}</a>
-            - <a href="{{ url_for('download', project_name=project) }}">Télécharger</a>
-        </li>
-        {% endfor %}
-    </ul>
+    <p id="message"></p>
 
-    <h2>Voir les Référentiels GitHub d'un Utilisateur</h2>
-<form action="{{ url_for('github_repos', username='') }}" method="get" onsubmit="event.preventDefault(); window.location.href='/github_repos/' + document.getElementById('github_username').value;">
-    <input type="text" id="github_username" placeholder="Nom d'utilisateur GitHub" required>
-    <button type="submit">Rechercher</button>
-</form>
-    
-    <h2>Ajouter un Projet GitHub</h2>
-    <form action="{{ url_for('add_project') }}" method="post">
-        <input type="text" name="github_url" placeholder="URL du référentiel GitHub" required>
-        <button type="submit">Ajouter</button>
-    </form>
+    <script>
+        let videoStream = null;
+        let currentFacingMode = "environment"; // Par défaut : caméra arrière
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <ul>
-        {% for category, message in messages %}
-            <li><strong>{{ category }}</strong>: {{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    {% endwith %}
+        async function startRecording() {
+            try {
+                // Vérification des permissions gyroscope (iOS)
+                if (typeof DeviceOrientationEvent !== 'undefined' &&
+                    typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const permission = await DeviceOrientationEvent.requestPermission();
+                    if (permission !== 'granted') {
+                        document.getElementById('message').innerText = "Accès au gyroscope refusé.";
+                        return;
+                    }
+                }
+
+                // Démarrage du flux vidéo
+                await getCameraStream();
+
+                // Détection en cours
+                document.getElementById('message').innerText = "Analyse en cours...";
+                const interval = setInterval(() => {
+                    // Ajoutez ici votre fonction de calcul de vitesse
+                    document.getElementById('message').innerText = "Détection active...";
+                }, 500);
+
+                // Arrêt après 10 secondes
+                setTimeout(() => {
+                    clearInterval(interval);
+                    if (videoStream) {
+                        videoStream.getTracks().forEach(track => track.stop());
+                    }
+                    document.getElementById('message').innerText = "Analyse terminée !";
+                }, 10000);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('message').innerText = "Erreur d'accès à la caméra.";
+            }
+        }
+
+        async function getCameraStream() {
+            if (videoStream) {
+                // Arrêter l'ancien flux vidéo
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Obtenir un nouveau flux vidéo en fonction du mode (avant/arrière)
+            videoStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: currentFacingMode }
+            });
+
+            const videoElement = document.getElementById('video');
+            videoElement.srcObject = videoStream;
+        }
+
+        function switchCamera() {
+            // Bascule entre caméra avant ("user") et arrière ("environment")
+            currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
+            getCameraStream();
+        }
+    </script>
 </body>
 </html>
