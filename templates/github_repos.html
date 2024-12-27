@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>trhacknon - Référentiels GitHub de {{ username }}</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1, h2 {
+            color: #00ff00;
+            text-align: center;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background-color: #333;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            color: #00e6e6;
+        }
+        a {
+            text-decoration: none;
+            color: #00ff00;
+        }
+        .back-btn {
+            display: block;
+            margin: 20px auto;
+            width: 100px;
+            text-align: center;
+            padding: 10px;
+            background-color: #00ff00;
+            color: #000;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        body { background-color: #121212; color: #00FFAA; font-family: Arial, sans-serif; }
+        a { color: #00FFAA; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        button { background-color: #00FFAA; color: #121212; border: none; padding: 5px 10px; cursor: pointer; }
+        button:hover { background-color: #00D494; }
+        .pagination { margin-top: 20px; }
+        .pagination a { color: #00FFAA; margin: 0 5px; text-decoration: none; }
+        .pagination a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Référentiels GitHub pour l'utilisateur : {{ username }}</h1>
+    <ul>
+        {% for repo in repos %}
+        <li>
+            <strong>{{ repo.name }}</strong> - <a href="{{ repo.html_url }}" target="_blank">Voir le repo</a>
+            <!-- Ajouter un bouton pour cloner ce repository -->
+            <form action="{{ url_for('add_project') }}" method="POST" style="display: inline;">
+                <input type="hidden" name="github_url" value="{{ repo.clone_url }}">
+                <button type="submit">Ajouter ce projet</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if prev_page %}
+        <a href="{{ url_for('github_repos', username=username, page=prev_page) }}">Précédent</a>
+        {% endif %}
+        {% if next_page %}
+        <a href="{{ url_for('github_repos', username=username, page=next_page) }}">Suivant</a>
+        {% endif %}
+    </div>
+
+    <a href="{{ url_for('index') }}">Retour à l'accueil</a>
+</body>
+</html>

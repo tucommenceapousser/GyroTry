@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs des Téléchargements</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            padding: 20px;
+        }
+        h1 {
+            color: #00ff00;
+        }
+        .log-entry {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #1e1e1e;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+        .log-entry p {
+            margin: 5px 0;
+        }
+        .btn {
+            padding: 8px 12px;
+            color: #fff;
+            background-color: #f00;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background-color: #c00;
+        }
+        .btn-reset {
+            background-color: #00f;
+        }
+        .btn-reset:hover {
+            background-color: #009;
+        }
+        .map-container {
+            height: 300px;
+            width: 100%;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Logs des Téléchargements</h1>
+
+<a href="/download_logs" class="btn">Télécharger les logs</a>
+<a href="/reset_logs" class="btn btn-reset">Réinitialiser les logs</a>
+
+<h2>Liste des logs</h2>
+
+{% for log in logs %}
+    <div class="log-entry">
+        <p><strong>IP:</strong> {{ log['ip'] }}</p>
+        <p><strong>Projet:</strong> {{ log['project'] }}</p>
+        <p><strong>Agent utilisateur:</strong> {{ log['user_agent'] }}</p>
+        <p><strong>Geo Data:</strong> {{ log['geo_data']['city'] }}, {{ log['geo_data']['country'] }}</p>
+        
+        <div class="map-container" id="map-{{ log['id'] }}"></div> <!-- Map container -->
+        
+        <a href="/delete_log/{{ log['id'] }}" class="btn">Supprimer ce log</a>
+    </div>
+
+    <!-- Initialize Leaflet map for each log -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map-{{ log['id'] }}').setView([{{ log['geo_data']['latitude'] | default(0) }}, {{ log['geo_data']['longitude'] | default(0) }}], 13); // Center on log's coordinates
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add a marker at the log's location
+        L.marker([{{ log['geo_data']['latitude'] | default(0) }}, {{ log['geo_data']['longitude'] | default(0) }}]).addTo(map)
+            .bindPopup("<b>{{ log['geo_data']['city'] }}</b><br>{{ log['geo_data']['country'] }}")
+            .openPopup();
+    </script>
+{% endfor %}
+
+</body>
+</html>
